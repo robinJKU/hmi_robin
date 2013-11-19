@@ -1,0 +1,11 @@
+<launch>
+
+	<node name="sound_play" pkg="sound_play" type="soundplay_node.py" />
+
+	<node name="hmi_speech_database" pkg="speech_database" type="speech_database">
+		<param name="audioPath" value="$(find speech_database)/storedSpeech" />
+		<param name="language" value="en" />  <!-- de, en, fr, ... (all languages supported by Google) -->
+		<param name="jsonPath" value=" $(find speech_database)/files.json" />
+	</node>
+
+</launch>
