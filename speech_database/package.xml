@@ -25,5 +25,6 @@
   <build_depend>jansson</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>sound_play</run_depend>
   
 </package>
