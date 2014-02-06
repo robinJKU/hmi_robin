@@ -1,7 +1,7 @@
 /*	Node that performs text-to-speech conversion by using Google's
 	speech synthesiser.
 	Alexander Reiter, Institute for Robotics (ROBIN), JKU Linz
-	November 2013
+	November-December 2013
 	
 	This node sends request to the soundplay_node to play audio files
 	that contain synthesised speech. It checks with a dictonary if the 
@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
   // init ROS
   ros::init(argc, argv, "speech_database");
   ros::NodeHandle n("~");
+  ros::spinOnce();
   ros::Subscriber sub;
   sub = n.subscribe("/speech", 10, stringCallback);
   soundPub = n.advertise<sound_play::SoundRequest>("/robotsound", 10);
@@ -72,7 +73,10 @@ int main(int argc, char** argv) {
 	  ROS_ERROR("Parameter audioPath not found");
 	  ros::shutdown();
   }
-  
+  // check if audioPath ends with '/'
+  if(audioPath.find_last_of("/") != audioPath.length()-1) {
+    audioPath.append("/");
+  }
   if(!n.getParam("language", language)) {
 	  ROS_ERROR("Parameter language not found");
 	  ros::shutdown();
@@ -87,8 +91,8 @@ int main(int argc, char** argv) {
   srand(time(NULL) + rand());
   
   // init json file
-  json_error_t* error;
-  root = json_load_file(jsonPath.c_str(), 0, error);
+  json_error_t err;
+  root = json_load_file(jsonPath.c_str(), 0, &err);
   if(!root) {
 	  ROS_DEBUG("json file %s does not exist, a new file will be created", jsonPath.c_str());
 	  root = json_object();
@@ -116,14 +120,27 @@ int main(int argc, char** argv) {
  * The path of the audio file that corresponds to the string in message
  * is stored in a SoundRequest message and advertised on the robotsound
  * topic.
+ * Since Google TTS only supports string with a length of up to 100 
+ * characters, a warning is thrown when a string is to be synthesised
+ * the exceeds the maximum length.
  * 
  * INPUT:	const std_msgs::String msg: message with string to be translated
  * OUTPUT:	none
  */
 void stringCallback(const std_msgs::String msg) {
+	string data = msg.data;
+	if(data.length() >  100) {
+		ROS_WARN("The exceeds the maximum length of 100 characters and will not be synthesised.");
+		return;
+	}
+	
+	// convert string to lowercase
+	for(int i = 0; i < data.length(); i++) {
+		data[i] = (char) tolower((int) data[i]);
+	}
 	
 	// check if entry for this string exists in json file
-	json_t* entry = json_object_get(root, msg.data.c_str());	// holds json_string object with audio file path
+	json_t* entry = json_object_get(root, data.c_str());	// holds json_string object with audio file path
 	if(!entry) {
 		ROS_DEBUG("Entry does not exist, downloading new file");
 		
@@ -131,7 +148,7 @@ void stringCallback(const std_msgs::String msg) {
 		stringstream urlStream;
 		urlStream << "http://translate.google.com/translate_tts?tl=";
 		urlStream << language << "&q=";
-		char* str = curl_easy_escape(curl, msg.data.c_str(), 0);
+		char* str = curl_easy_escape(curl, data.c_str(), 0);
 		urlStream << str;
 		curl_free(str);
 		
@@ -142,10 +159,6 @@ void stringCallback(const std_msgs::String msg) {
 			filenameStream.str("");
 			filenameStream.clear();
 			filenameStream << audioPath;
-			// check if audioPath ends with '/'
-			if(audioPath.find_last_of('/') < audioPath.length()) {
-				filenameStream << '/';
-			}
 			createFilename();
 			filenameStream << filename;
 			file = fopen(filenameStream.str().c_str(), "r");
@@ -162,7 +175,7 @@ void stringCallback(const std_msgs::String msg) {
 		res = curl_easy_perform(curl);
 		fclose(file);
 		
-		/* check for curl errors */ 
+		// check for curl errors
 		if(res == CURLE_OK) {
 			ROS_DEBUG("File downloaded and stored in %s", filenameStream.str().c_str());
 		} else {
@@ -170,8 +183,9 @@ void stringCallback(const std_msgs::String msg) {
 			return;
 		}
 		
-		entry = json_string(filenameStream.str().c_str());
-		json_object_set(root, msg.data.c_str(), entry);
+		// add json object
+		entry = json_string(filename);
+		json_object_set(root, data.c_str(), entry);
 		
 		if(json_dump_file(root, jsonPath.c_str(), 0) == 0) {
 			ROS_DEBUG("json file successfully written to %s", jsonPath.c_str());
@@ -189,7 +203,9 @@ void stringCallback(const std_msgs::String msg) {
 	// create speech message
 	req.sound = req.PLAY_FILE;
 	req.command = req.PLAY_ONCE;
-	req.arg = json_string_value(entry);
+	string path_to_file = audioPath;
+	path_to_file.append(json_string_value(entry));
+	req.arg = path_to_file;
 	
 	soundPub.publish(req);
 }
@@ -204,12 +220,16 @@ void createFilename() {
 	int i;
 	char ch;
 	for(i = 0; i < 50; i++) {
-		ch = (char) rand() % 62;
-		if(ch < 10) ch = ch + 48; // numbers
-		else if(ch < 36) ch = (ch - 10) + 65; // capital letters
-		else ch = (ch - 36) + 97; // small letters
+		int ran = rand() % 62;
+		ch = (char) ran;
+		if(ch < 10) {
+			ch = (char) ch + '0'; // numbers
+		} else if(ch < 36) {
+			ch = (ch - 10) + 'A'; // capital letters
+		} else {
+			ch = (ch - 36) + 'a'; // small letters
+		}
 		filename[i] = ch;
 	}
 	filename[50] = 0;
 }
-
