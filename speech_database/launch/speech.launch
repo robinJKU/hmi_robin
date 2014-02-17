@@ -5,6 +5,7 @@
 	<node name="hmi_speech_database" pkg="speech_database" type="speech_database">
 		<param name="audioPath" value="$(find speech_database)/storedSpeech" />
 		<param name="language" value="en" />  <!-- de, en, fr, ... (all languages supported by Google) -->
+		<param name="mplayer" type="bool" value="false" /> <!-- true for mplayer use -->
 		<param name="jsonPath" value=" $(find speech_database)/files.json" />
 	</node>
 
