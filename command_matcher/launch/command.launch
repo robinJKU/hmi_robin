@@ -1,0 +1,15 @@
+<launch>
+  
+  <node name="command_matcher_node" pkg="command_matcher" type="command_matcher_node" >
+    <param name="cmd_000" type="str" value="start idle mode" />
+    <param name="cmd_001" type="str" value="start home position mode" />
+    <param name="cmd_002" type="str" value="start walking mode" />
+    <param name="cmd_003" type="str" value="ok" />
+    <param name="cmd_004" type="str" value="stop service" />
+    <param name="cmd_005" type="str" value="who are you" />
+    <param name="cmd_006" type="str" value="does not make sense" />
+    <param name="cmd_007" type="str" value="thank you" />
+    <param name="cmd_008" type="str" value="absolutely pointless" />
+  </node>
+    
+</launch>
