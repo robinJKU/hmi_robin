@@ -50,6 +50,7 @@ ros::Publisher soundPub;	// publisher for sound_play requests
 string audioPath;	// path to audio folder
 string jsonPath;	// path to json file with audio references
 string language;	// language code
+bool mplayer;		// using mplayer for audio output
 
 json_t* root;	// root node of json structure
 
@@ -83,6 +84,10 @@ int main(int argc, char** argv) {
   }
   if(!n.getParam("jsonPath", jsonPath)) {
 	  ROS_ERROR("Parameter jsonPath not found");
+	  ros::shutdown();
+  }
+  if(!n.getParam("mplayer", mplayer)) {
+	  ROS_ERROR("Parameter mplayer not found");
 	  ros::shutdown();
   }
   
@@ -198,7 +203,9 @@ void stringCallback(const std_msgs::String msg) {
 	sound_play::SoundRequest req;
 	req.sound = req.ALL;
 	req.command = req.PLAY_STOP;
-	soundPub.publish(req);
+	if(!mplayer) {
+		soundPub.publish(req);
+	}
 	
 	// create speech message
 	req.sound = req.PLAY_FILE;
@@ -207,7 +214,13 @@ void stringCallback(const std_msgs::String msg) {
 	path_to_file.append(json_string_value(entry));
 	req.arg = path_to_file;
 	
-	soundPub.publish(req);
+	if(mplayer) {
+		string cmd_str = "mplayer ";
+		cmd_str = cmd_str + path_to_file;
+		system(cmd_str.c_str());
+	} else {
+		soundPub.publish(req);
+	}
 }
 
 /* Function that writes a random sequence of (human readable) characters
