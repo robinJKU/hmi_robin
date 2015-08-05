@@ -185,12 +185,15 @@ void stringCallback(const std_msgs::String msg) {
 		urlStream << language << "&q=";
 		char* str = curl_easy_escape(curl, data.c_str(), 0);
 		urlStream << str;
+		urlStream << "&client=t";
 		curl_free(str);
-		
+
 		stringstream filenameStream;
 		FILE* file = fopen("/dev/null", "r");	// some existing file
 		while(file) {	// generate new filenames until corresponding file does not exist
 			curl_easy_setopt(curl, CURLOPT_URL, urlStream.str().c_str());
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, "");
+			curl_easy_setopt(curl, CURLOPT_REFERER, "http://translate.google.com");
 			filenameStream.str("");
 			filenameStream.clear();
 			filenameStream << audioPath;
@@ -220,7 +223,6 @@ void stringCallback(const std_msgs::String msg) {
 			ROS_ERROR("Download failed, curl_easy_perform() error: %s", curl_easy_strerror(res));
 			return;
 		}
-		
 		// add json object
 		entry = json_string(filename);
 		json_object_set(root, data.c_str(), entry);
