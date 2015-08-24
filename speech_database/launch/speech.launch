@@ -7,6 +7,7 @@
 		<param name="language" value="en" />  <!-- de, en, fr, ... (all languages supported by Google) -->
 		<param name="mplayer" type="bool" value="false" /> <!-- true for mplayer use -->
 		<param name="jsonPath" value=" $(find speech_database)/files.json" />
+		<param name="default_file" value="$(find speech_database)/storedSpeech/defaultAudio.wav" />
 	</node>
 
 </launch>

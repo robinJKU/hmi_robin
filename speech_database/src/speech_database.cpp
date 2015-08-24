@@ -42,6 +42,7 @@
 using namespace std;
 
 void stringCallback(const std_msgs::String msg);
+void playSoundFile(std::string path_to_file);
 void createFilename();
 
 ros::Publisher soundPub;	// publisher for sound_play requests
@@ -50,6 +51,7 @@ ros::Publisher soundPub;	// publisher for sound_play requests
 string audioPath;	// path to audio folder
 string jsonPath;	// path to json file with audio references
 string language;	// language code
+string default_file; // default file to play when we cannot translate online and can't find the diccionary
 bool mplayer;		// using mplayer for audio output
 
 json_t* root;	// root node of json structure
@@ -90,7 +92,11 @@ int main(int argc, char** argv) {
 	  ROS_ERROR("Parameter mplayer not found");
 	  ros::shutdown();
   }
-  
+  if(!n.getParam("default_file",default_file)) {
+   	  ROS_ERROR("Parameter default_file not found");
+   	  default_file = "";
+  }
+    
   // prepare rand
   srand(time(NULL));
   srand(time(NULL) + rand());
@@ -117,7 +123,31 @@ int main(int argc, char** argv) {
  
   return 0;
 }
-
+/* Play the file with aplay
+ *
+ */
+void playSoundFile(std::string path_to_file) {
+	// create stop message
+	sound_play::SoundRequest req;
+	req.sound = req.ALL;
+	req.command = req.PLAY_STOP;
+	if(!mplayer) {
+		soundPub.publish(req);
+	}
+	
+	// create speech message
+	req.sound = req.PLAY_FILE;
+	req.command = req.PLAY_ONCE;
+	req.arg = path_to_file;
+	
+	if(mplayer) {
+		string cmd_str = "mplayer ";
+		cmd_str = cmd_str + path_to_file;
+		system(cmd_str.c_str());
+	} else {
+		soundPub.publish(req);
+	}
+}
 /* Callback function that checks if the current json structure already
  * contains an entry that corresponds to the string from the message. If
  * no entry exists, it a new a new speech file is downloaded and stored
@@ -155,12 +185,15 @@ void stringCallback(const std_msgs::String msg) {
 		urlStream << language << "&q=";
 		char* str = curl_easy_escape(curl, data.c_str(), 0);
 		urlStream << str;
+		urlStream << "&client=t";
 		curl_free(str);
-		
+
 		stringstream filenameStream;
 		FILE* file = fopen("/dev/null", "r");	// some existing file
 		while(file) {	// generate new filenames until corresponding file does not exist
 			curl_easy_setopt(curl, CURLOPT_URL, urlStream.str().c_str());
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, "");
+			curl_easy_setopt(curl, CURLOPT_REFERER, "http://translate.google.com");
 			filenameStream.str("");
 			filenameStream.clear();
 			filenameStream << audioPath;
@@ -184,10 +217,12 @@ void stringCallback(const std_msgs::String msg) {
 		if(res == CURLE_OK) {
 			ROS_DEBUG("File downloaded and stored in %s", filenameStream.str().c_str());
 		} else {
+			if (!(default_file == "")) {
+				playSoundFile(default_file);
+			}
 			ROS_ERROR("Download failed, curl_easy_perform() error: %s", curl_easy_strerror(res));
 			return;
 		}
-		
 		// add json object
 		entry = json_string(filename);
 		json_object_set(root, data.c_str(), entry);
@@ -199,28 +234,11 @@ void stringCallback(const std_msgs::String msg) {
 		}
 	}
 	
-	// create stop message
-	sound_play::SoundRequest req;
-	req.sound = req.ALL;
-	req.command = req.PLAY_STOP;
-	if(!mplayer) {
-		soundPub.publish(req);
-	}
 	
-	// create speech message
-	req.sound = req.PLAY_FILE;
-	req.command = req.PLAY_ONCE;
+
 	string path_to_file = audioPath;
 	path_to_file.append(json_string_value(entry));
-	req.arg = path_to_file;
-	
-	if(mplayer) {
-		string cmd_str = "mplayer ";
-		cmd_str = cmd_str + path_to_file;
-		system(cmd_str.c_str());
-	} else {
-		soundPub.publish(req);
-	}
+	playSoundFile(path_to_file);
 }
 
 /* Function that writes a random sequence of (human readable) characters
