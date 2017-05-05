@@ -18,7 +18,8 @@
 	audioPath: path to folder with audio files (does not need to end with '/')
 	jsonPath: path to json file with dictionary
 	language: language code for speech synthesis (en, de, etc.)
-	
+	volume: volume value for the reproduced speech (0.0 - 1.0)
+
 	
 	References:
 	Google TTS API
@@ -50,6 +51,7 @@ ros::Publisher soundPub;	// publisher for sound_play requests
 string audioPath;	// path to audio folder
 string jsonPath;	// path to json file with audio references
 string language;	// language code
+float volume;		// Volume for the sound_play node.
 bool mplayer;		// using mplayer for audio output
 
 json_t* root;	// root node of json structure
@@ -90,7 +92,11 @@ int main(int argc, char** argv) {
 	  ROS_ERROR("Parameter mplayer not found");
 	  ros::shutdown();
   }
-  
+  if (!n.hasParam("volume")) {
+      ROS_WARN("Volume parameter not found. Setting default volume to 0.5.");
+  }
+  n.param<float>("volume", volume, 0.5f);
+
   // prepare rand
   srand(time(NULL));
   srand(time(NULL) + rand());
@@ -151,7 +157,7 @@ void stringCallback(const std_msgs::String msg) {
 		
 		// prepare URL for curl
 		stringstream urlStream;
-		urlStream << "http://translate.google.com/translate_tts?tl=";
+        urlStream << "http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=";
 		urlStream << language << "&q=";
 		char* str = curl_easy_escape(curl, data.c_str(), 0);
 		urlStream << str;
@@ -210,6 +216,7 @@ void stringCallback(const std_msgs::String msg) {
 	// create speech message
 	req.sound = req.PLAY_FILE;
 	req.command = req.PLAY_ONCE;
+    req.volume = volume;
 	string path_to_file = audioPath;
 	path_to_file.append(json_string_value(entry));
 	req.arg = path_to_file;
