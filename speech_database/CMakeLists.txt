@@ -10,6 +10,8 @@ catkin_package(
   CATKIN_DEPENDS roscpp std_msgs sound_play
 )
 
+include_directories(${catkin_INCLUDE_DIRS})
+
 ###########
 ## Build ##
 ###########
