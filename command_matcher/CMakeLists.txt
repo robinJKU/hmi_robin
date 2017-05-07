@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+#find_package(libjansson-dev REQUIRED)
 
 
 
@@ -27,7 +27,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES command_matcher
   CATKIN_DEPENDS roscpp std_msgs
-#  DEPENDS system_lib
+# DEPENDS system_lib libjansson
 )
 
 ###########

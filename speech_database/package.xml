@@ -9,20 +9,20 @@
 	  After an entry that corresponds to the text was found or created, a request to play the audio file is published at the /robotsound topic to be processed by the soundplay_node.py of the sound_play package.
   </description>
 
-  <maintainer email="alexander.reiter@me.com">Alexander Reiter</maintainer>
+  <maintainer email="alexander.reiter@jku.at">Alexander Reiter</maintainer>
 
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/speech_database</url>
 
-  <author email="alexander.reiter@me.com">Alexander Reiter</author>
+  <author email="alexander.reiter@jku.at">Alexander Reiter</author>
   
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>sound_play</build_depend>
   <build_depend>libcurl4-openssl-dev</build_depend>
-  <build_depend>jansson</build_depend>
+  <build_depend>libjansson-dev</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sound_play</run_depend>

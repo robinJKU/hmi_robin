@@ -3,13 +3,13 @@
   <version>1.0.0</version>
   <description>This is the hmi_robin meta-package</description>
 
-  <maintainer email="alexander.reiter@me.com">Alexander Reiter</maintainer>
+  <maintainer email="alexander.reiter@jku.at">Alexander Reiter</maintainer>
 
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/hmi_robin</url>
 
-  <author email="alexander.reiter@me.com">Alexander Reiter</author>
+  <author email="alexander.reiter@jku.at">Alexander Reiter</author>
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>speech_database</run_depend>

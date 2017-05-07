@@ -18,9 +18,9 @@
 # written by achuwilson									#
 # 30-06-2012 , 3.00pm									#
 # achu@achuwilson.in									#
-# enhanced by Alexander Reiter, Institute for Robotics, JKU Linz
+# enhanced by Alexander Reiter, Institute of Robotics, JKU Linz
 # February 2014
-# ros@dualspace.at
+# alexander.reiter@jku.at
 #########################################################################################
 import roslib; roslib.load_manifest('gspeech') 
 import rospy

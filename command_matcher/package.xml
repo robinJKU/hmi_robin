@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <package>
   <name>command_matcher</name>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
   <description>The command_matcher package</description>
   
-  <author email="ros@dualspace.at">Alexander Reiter</author>
-  <maintainer email="ros@dualspace.at">Alexander Reiter</maintainer>
+  <author email="alexander.reiter@jku.at">Alexander Reiter</author>
+  <maintainer email="alexander.reiter@jku.at">Alexander Reiter</maintainer>
 
 
   <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>libjansson-dev</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <run_depend>roscpp</run_depend>
