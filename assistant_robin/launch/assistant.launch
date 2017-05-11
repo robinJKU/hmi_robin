@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="assistant" pkg="assistant_robin" type="assistant_server.py">
+        <!-- Verbose logging -->
+        <param name="verbose" value="True" type="boolean" />
+
+        <!-- Address of Google Assistant API service -->
+         <!--<param name="api_endpoint" value="" type="str" />-->
+
+        <!--Path to read OAuth2 credentials-->
+        <!--<param name="credentials" value="" type="str" />-->
+
+        <!-- Audio sample rate in hertz -->
+        <!--<param name="audio_sample_rate" value="16000" type="int" />-->
+
+        <!-- Audio sample width in bytes -->
+        <!--<param name="audio_sample_width" value="" type="int" />-->
+
+        <!-- Size of each read during audio stream iteration in bytes -->
+        <!--<param name="audio_iter_size" value="" type="int" />-->
+
+        <!-- Block size in bytes for each audio device read and write operation -->
+        <!--<param name="audio_block_size" value="" type="int" />-->
+
+        <!-- Size of silence data in bytes written during flush operation -->
+        <!--<param name="audio_flush_size" value="" type="int" />-->
+
+        <!-- gRPC deadline in seconds -->
+        <!--<param name="grpc_deadline" value="" type="int" />-->
+
+    </node>
+</launch>
