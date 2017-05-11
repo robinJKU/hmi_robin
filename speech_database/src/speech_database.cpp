@@ -110,9 +110,11 @@ int main(int argc, char** argv) {
   } else {
 	  ROS_DEBUG("json file %s successfully opened", jsonPath.c_str());
   }
-  
+  ROS_INFO("Hello world!");
   // init curl
   curl = curl_easy_init();
+  
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla");
  
   while (curl && ros::ok()) {
     ros::spinOnce();
@@ -162,6 +164,7 @@ void stringCallback(const std_msgs::String msg) {
 		char* str = curl_easy_escape(curl, data.c_str(), 0);
 		urlStream << str;
 		curl_free(str);
+		ROS_INFO(urlStream.str().c_str());
 		
 		stringstream filenameStream;
 		FILE* file = fopen("/dev/null", "r");	// some existing file
