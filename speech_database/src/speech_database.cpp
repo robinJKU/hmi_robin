@@ -110,7 +110,8 @@ int main(int argc, char** argv) {
   } else {
 	  ROS_DEBUG("json file %s successfully opened", jsonPath.c_str());
   }
-  ROS_INFO("Hello world!");
+  ROS_INFO("Starting speech service!");
+
   // init curl
   curl = curl_easy_init();
   
@@ -142,6 +143,7 @@ int main(int argc, char** argv) {
  */
 void stringCallback(const std_msgs::String msg) {
 	string data = msg.data;
+    ROS_INFO_STREAM("Received request of speech with data \"" << data << "\" of size " << data.length());
 	if(data.length() >  100) {
 		ROS_WARN("The exceeds the maximum length of 100 characters and will not be synthesised.");
 		return;
@@ -164,7 +166,8 @@ void stringCallback(const std_msgs::String msg) {
 		char* str = curl_easy_escape(curl, data.c_str(), 0);
 		urlStream << str;
 		curl_free(str);
-		ROS_INFO(urlStream.str().c_str());
+        
+		ROS_INFO_STREAM("Google Translate's URL: " << urlStream.str());
 		
 		stringstream filenameStream;
 		FILE* file = fopen("/dev/null", "r");	// some existing file
