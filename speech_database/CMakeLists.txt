@@ -18,6 +18,7 @@ include_directories(${catkin_INCLUDE_DIRS})
 
 ## Declare a cpp executable
 add_executable(speech_database src/speech_database.cpp)
+add_dependencies(speech_database ${catkin_EXPORTED_TARGETS})
 target_link_libraries(speech_database ${catkin_LIBRARIES})
 
 ## Specify libraries to link a library or executable target against
